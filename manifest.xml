@@ -1,19 +1,11 @@
 <package>
   <description brief="A webrtc signalling task using rustysignal">
-  
   </description>
   <author>Sylvain Joyeux/sylvain.joyeux@tidewise.io</author>
-  <license></license>
-  <url>http://</url>
-  <logo>http://</logo>
+  <license>LGPLv2.1</license>
   <depend package="base/cmake" />
-  <!--
-   To add any dependencies use the depend tag
-  <depend package="dummy-dependency-0" />
-	...
-  <depend package="dummy-dependency-n-1" />
-  <depend package="dummy-dependency-n" />
-  -->
   <depend package="drivers/orogen/webrtc_base" />
   <depend package="tools/libdatachannel" />
+
+  <test_depend name="tools/syskit" />
 </package>
