@@ -4,13 +4,18 @@
 #define WEBRTC_RUSTYSIGNAL_TASK_TASK_HPP
 
 #include "webrtc_rustysignal/TaskBase.hpp"
+#include <json/json.h>
+#include <rtc/rtc.hpp>
 
-namespace webrtc_rustysignal{
+namespace webrtc_rustysignal {
 
     /*! \class Task
-     * \brief The task context provides and requires services. It uses an ExecutionEngine to perform its functions.
-     * Essential interfaces are operations, data flow ports and properties. These interfaces have been defined using the oroGen specification.
-     * In order to modify the interfaces you should (re)use oroGen and rely on the associated workflow.
+     * \brief The task context provides and requires services. It uses an ExecutionEngine
+to perform its functions.
+     * Essential interfaces are operations, data flow ports and properties. These
+interfaces have been defined using the oroGen specification.
+     * In order to modify the interfaces you should (re)use oroGen and rely on the
+associated workflow.
      * Declare a new task context (i.e., a component)
 
 The corresponding C++ class can be edited in tasks/Task.hpp and
@@ -22,25 +27,30 @@ tasks/Task.cpp, and will be put in the webrtc_rustysignal namespace.
          task('custom_task_name','webrtc_rustysignal::Task')
      end
      \endverbatim
-     *  It can be dynamically adapted when the deployment is called with a prefix argument.
+     *  It can be dynamically adapted when the deployment is called with a prefix
+argument.
      */
-    class Task : public TaskBase
-    {
-	friend class TaskBase;
+    class Task : public TaskBase {
+        friend class TaskBase;
+
     protected:
-
-
+        rtc::WebSocket m_ws;
+        std::string m_error;
+        Json::CharReader* m_json_reader = nullptr;
+        void signallingOut(Json::Value const& json);
+        void signallingIn(webrtc_base::SignallingMessage const& mgs);
 
     public:
         /** TaskContext constructor for Task
-         * \param name Name of the task. This name needs to be unique to make it identifiable via nameservices.
-         * \param initial_state The initial TaskState of the TaskContext. Default is Stopped state.
+         * \param name Name of the task. This name needs to be unique to make it
+         * identifiable via nameservices. \param initial_state The initial TaskState of
+         * the TaskContext. Default is Stopped state.
          */
         Task(std::string const& name = "webrtc_rustysignal::Task");
 
         /** Default deconstructor of Task
          */
-	~Task();
+        ~Task();
 
         /** This hook is called by Orocos when the state machine transitions
          * from PreOperational to Stopped. If it returns false, then the
@@ -103,4 +113,3 @@ tasks/Task.cpp, and will be put in the webrtc_rustysignal namespace.
 }
 
 #endif
-
