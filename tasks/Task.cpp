@@ -172,12 +172,22 @@ static std::string signallingTypeToJsonAction(webrtc_base::SignallingMessageType
 void Task::signallingOut(Json::Value const& json)
 {
     webrtc_base::SignallingMessage msg;
-    msg.from = json["from"].asString();
+    msg.from = json["data"]["from"].asString();
     if (json["protocol"] == "one-to-one") {
         msg.to = json["to"].asString();
     }
     msg.type = jsonActionToSignallingType(json["action"].asString());
-    msg.message = json["data"].asString();
+    if (msg.type == webrtc_base::SIGNALLING_OFFER ||
+        msg.type == webrtc_base::SIGNALLING_ANSWER) {
+        msg.message = json["data"]["description"].asString();
+    }
+    else if (msg.type == webrtc_base::SIGNALLING_ICE_CANDIDATE) {
+        msg.message = json["data"]["candidate"].asString();
+        msg.m_line = json["data"]["mid"].asInt();
+    }
+    else {
+        msg.message = json["data"]["message"].asString();
+    }
 
     _signalling_out.write(msg);
 }
@@ -185,7 +195,7 @@ void Task::signallingOut(Json::Value const& json)
 void Task::signallingIn(webrtc_base::SignallingMessage const& msg)
 {
     Json::Value json;
-    json["from"] = msg.from;
+    json["data"]["from"] = msg.from;
     json["to"] = msg.to;
     if (msg.to.empty()) {
         json["protocol"] = "one-to-all";
@@ -194,7 +204,17 @@ void Task::signallingIn(webrtc_base::SignallingMessage const& msg)
         json["protocol"] = "one-to-one";
     }
     json["action"] = signallingTypeToJsonAction(msg.type);
-    json["data"] = msg.message;
+    if (msg.type == webrtc_base::SIGNALLING_OFFER ||
+        msg.type == webrtc_base::SIGNALLING_ANSWER) {
+        json["data"]["description"] = msg.message;
+    }
+    else if (msg.type == webrtc_base::SIGNALLING_ICE_CANDIDATE) {
+        json["data"]["candidate"] = msg.message;
+        json["data"]["mid"] = msg.m_line;
+    }
+    else {
+        json["data"]["message"] = msg.message;
+    }
 
     Json::FastWriter fast;
     m_ws.send(fast.write(json));
