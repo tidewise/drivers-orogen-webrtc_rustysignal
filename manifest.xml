@@ -8,4 +8,5 @@
   <depend package="tools/libdatachannel" />
 
   <test_depend name="tools/syskit" />
+  <test_depend name="tools/rustysignal" />
 </package>
