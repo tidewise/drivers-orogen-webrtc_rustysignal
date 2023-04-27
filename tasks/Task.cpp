@@ -183,7 +183,13 @@ void Task::signallingOut(Json::Value const& json)
     }
     else if (msg.type == webrtc_base::SIGNALLING_ICE_CANDIDATE) {
         msg.message = json["data"]["candidate"].asString();
-        msg.m_line = json["data"]["mid"].asInt();
+        auto mid = json["data"]["mid"];
+        if (mid.isString()) {
+            msg.m_line = std::stoi(mid.asString());
+        }
+        else {
+            msg.m_line = mid.asInt();
+        }
     }
     else {
         msg.message = json["data"]["message"].asString();
